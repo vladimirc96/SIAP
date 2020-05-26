@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import csv
 import numpy as np
+from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -384,6 +385,18 @@ def calculate_percentage(sum, votes):
     prct = votes/sum
     return round(prct,3)
 
+def linear_regression():
+    df = pd.read_csv("train.csv")
+    dt = pd.read_csv("test.csv")
+    reg = linear_model.LinearRegression()
+    print('LINEAR START')
+    reg.fit(df[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']],df.award_share)
+    rez = reg.predict(dt[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']])
+
+    print(rez)
+    print(dt.award_share)
+    print('LINEAR END')
+
 def random_forest_regression(X, y, year):
 
     target = np.array(X['award_share'])
@@ -488,3 +501,9 @@ if __name__ == '__main__':
 
         pd.concat([real_all_star, predicition_all_star],axis=1).to_csv('predictions_all_star_' + str(index) + '.csv')
         pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
+
+    #LINEAR
+    linear_regression()
+
+
+

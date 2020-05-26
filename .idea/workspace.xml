@@ -2,12 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1f12a37d-f146-441d-b03e-9349ad490a0a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../naucna-centrala/backend/src/main/java/com/upp/naucnacentrala/search/ResultRetriever.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/SIAP.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/person_correlactions" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/predicted_values" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/predicted_values_all_star" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="487">
-              <caret line="473" column="34" lean-forward="true" selection-start-line="473" selection-start-column="34" selection-end-line="473" selection-end-column="34" />
+            <state relative-caret-position="17">
+              <caret line="387" selection-start-line="387" selection-end-line="387" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -93,17 +95,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="SIAP" type="b2602c69:ProjectViewProjectNode" />
-              <item name="all-star-votings-scrapping" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
+      <pane id="ProjectPane" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -176,6 +168,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24973656" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -357,14 +350,14 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mvp_votings_joined.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="168" lean-forward="true" selection-start-line="5" selection-start-column="168" selection-end-line="5" selection-end-column="168" />
-        </state>
-      </provider>
       <provider editor-type-id="LargeFileEditor">
         <state relative-caret-position="136">
           <caret line="8" column="162" selection-start-line="8" selection-start-column="162" selection-end-line="8" selection-end-column="162" />
+        </state>
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="168" lean-forward="true" selection-start-line="5" selection-start-column="168" selection-end-line="5" selection-end-column="168" />
         </state>
       </provider>
     </entry>
@@ -402,20 +395,8 @@
     <entry file="file://$PROJECT_DIR$/test_data.csv">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/predicted_values_all_star">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/predicted_values">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/predicted_values_all_star" />
+    <entry file="file://$PROJECT_DIR$/predicted_values" />
     <entry file="file://$PROJECT_DIR$/train.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-9020" />
@@ -438,9 +419,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/predictions_2013">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/predictions_2013" />
     <entry file="file://$PROJECT_DIR$/person_correlations">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
@@ -450,8 +429,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="487">
-          <caret line="473" column="34" lean-forward="true" selection-start-line="473" selection-start-column="34" selection-end-line="473" selection-end-column="34" />
+        <state relative-caret-position="17">
+          <caret line="387" selection-start-line="387" selection-end-line="387" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
