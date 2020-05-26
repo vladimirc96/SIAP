@@ -379,11 +379,12 @@ def make_dataset(path):
     return dataset
 
 
+
 def calculate_percentage(sum, votes):
     prct = votes/sum
     return round(prct,3)
 
-def random_forest_regression(X, y):
+def random_forest_regression(X, y, year):
 
     target = np.array(X['award_share'])
     features = X.drop('award_share', axis=1)
@@ -396,10 +397,6 @@ def random_forest_regression(X, y):
     test_features = np.array(y.drop('award_share', axis=1))
     test_labels = np.array(y['award_share'])
 
-    # print('Training Features Shape:', train_features.shape)
-    # print('Training Labels Shape:', train_labels.shape)
-    # print('Testing Features Shape:', test_features.shape)
-    # print('Testing Labels Shape:', test_labels.shape)
 
     r1 = RandomForestRegressor(n_estimators=1000, random_state=0, bootstrap=True)
     r2 = RandomForestRegressor(n_estimators=500, random_state=0, bootstrap=True)
@@ -409,12 +406,18 @@ def random_forest_regression(X, y):
     predictions_r1 = r1.predict(test_features)
     predictions_r2 = r2.predict(test_features)
 
-    data = pd.read_csv('test.csv', usecols=['player', 'season', 'award_share'])
+    data = pd.read_csv('test_' + str(year) + '.csv', usecols=['player', 'season', 'award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
     players = np.array(data['player'])
     seasons = np.array(data['season'])
     award_shares = np.array(data['award_share'])
-    tuples = list(zip(players, seasons, award_shares, predictions_r1))
-    df = pd.DataFrame(tuples, columns=['Player', 'Season', 'Award_share', 'Predictions'])
+    votes_first = np.array(data['votes_first'])
+    per = np.array(data['per'])
+    ws = np.array(data['ws'])
+    ws_per_48 = np.array(data['ws_per_48'])
+    bpm = np.array(data['bpm'])
+    all_star_share = np.array(data['all_star_share'])
+    tuples = list(zip(players, seasons, award_shares, predictions_r1, votes_first, per, ws, ws_per_48, bpm, all_star_share))
+    df = pd.DataFrame(tuples, columns=['player', 'season', 'award_share', 'predictions', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
 
 
     # Print out the mean absolute error (mae)
@@ -425,6 +428,18 @@ def random_forest_regression(X, y):
     print("Score r2: " + str(r2.score(test_features, test_labels)))
 
     return df
+
+
+def check_results(dataframe):
+    pd.set_option('display.max_columns', None)
+    real = dataframe.sort_values('award_share',ascending=False)
+    prediction = dataframe.sort_values('predictions', ascending=False)
+    print('\n')
+    print(real[0:3])
+    print('\n')
+    print(prediction[0:3])
+    print('\n')
+    return real[0:6], prediction[0:6]
 
 if __name__ == '__main__':
 
@@ -446,18 +461,30 @@ if __name__ == '__main__':
     # dataset_test_data = join_datasets_test_data(all_star_votes_2019, test_data)
     # write_joined_csv_test_data(dataset_test_data, r'C:\Users\Vladimir\PycharmProjects\all-star-votings-scrapping', 'test_data_joined')
 
-    # PEARSON CORRELATION
-    X = pd.read_csv('mvp_votings_joined.csv')
-    corr = X.corr()
-    coef = corr['award_share'].sort_values(ascending=False)
-    coef.to_csv('person_correlations', sep='\t', encoding='utf-8')
-    # RANDOM FOREST
-    X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
-    y_all_star = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
-    df_all_star = random_forest_regression(X_all_star, y_all_star)
-    df_all_star.to_csv('predicted_values_all_star', sep='\t', encoding='utf-8')
 
-    X = pd.read_csv('train.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm'])
-    y = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm'])
-    df = random_forest_regression(X, y)
-    df.to_csv('predicted_values', sep='\t', encoding='utf-8')
+    # # PEARSON CORRELATION
+    # X = pd.read_csv('mvp_votings_joined.csv')
+    # corr = X.corr()
+    # coef = corr['award_share'].sort_values(ascending=False)
+    # coef.to_csv('person_correlations', sep='\t', encoding='utf-8')
+
+    # RANDOM FOREST
+    X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+    X = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+    for index in range(2013,2018):
+        print('****************** ALL_STAR_SHARE ******************  \n')
+        y_all_star = pd.read_csv('test_' + str(index) + '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+        df_all_star = random_forest_regression(X_all_star, y_all_star, index)
+        real_all_star, predicition_all_star = check_results(df_all_star)
+        print('\n')
+        print('****************** ALL_STAR_SHARE ******************  \n\n\n')
+
+        print('****************** NO_ALL_STAR_SHARE ******************  \n')
+        y = pd.read_csv('test_' + str(index) +  '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+        df = random_forest_regression(X, y, index)
+        real, prediction = check_results(df)
+        print('\n')
+        print('****************** NO_ALL_STAR_SHARE ******************  \n\n\n')
+
+        pd.concat([real_all_star, predicition_all_star],axis=1).to_csv('predictions_all_star_' + str(index) + '.csv')
+        pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
