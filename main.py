@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import csv
 import numpy as np
+from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -382,6 +383,18 @@ def calculate_percentage(sum, votes):
     prct = votes/sum
     return round(prct,3)
 
+def linear_regression():
+    df = pd.read_csv("train.csv")
+    dt = pd.read_csv("test.csv")
+    reg = linear_model.LinearRegression()
+    print('LINEAR START')
+    reg.fit(df[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']],df.award_share)
+    rez = reg.predict(dt[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']])
+    
+    print(rez)
+    print(dt.award_share)
+    print('LINEAR END')
+
 def random_forest_regression(X, y):
 
     target = np.array(X['award_share'])
@@ -457,6 +470,9 @@ if __name__ == '__main__':
     y_all_star = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
     df_all_star = random_forest_regression(X_all_star, y_all_star)
     df_all_star.to_csv('predicted_values_all_star', sep='\t', encoding='utf-8')
+    #LINEAR
+    linear_regression()
+
 
     X = pd.read_csv('train.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm'])
     y = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm'])
