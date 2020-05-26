@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
 # id wrappera = voting_results_DIVIZIJA
 # svaka tabela ima id formata: voting-results-DIVIZIJA_IDPOZICIJE
 # id za pozocije: 1 - Guard, 2 - Forward, 3 - Center
@@ -428,12 +429,10 @@ def random_forest_regression(X, y):
     tuples = list(zip(players, seasons, award_shares, predictions_r1))
     df = pd.DataFrame(tuples, columns=['Player', 'Season', 'Award_share', 'Predictions'])
 
-    errors_r1 = abs(predictions_r1 - test_labels)
-    errors_r2 = abs(predictions_r2 - test_labels)
 
     # Print out the mean absolute error (mae)
-    print('Mean Absolute Error r1:', round(np.mean(errors_r1), 2), '.')
-    print('Mean Absolute Error r2:', round(np.mean(errors_r2), 2), '.')
+    print('Mean Absolute Error r1:', round(mean_absolute_error(test_labels, predictions_r1),2), '.')
+    print('Mean Absolute Error r2:', round(mean_absolute_error(test_labels, predictions_r2),2), '.')
 
     print("Score r1: " + str(r1.score(test_features, test_labels)))
     print("Score r2: " + str(r2.score(test_features, test_labels)))
