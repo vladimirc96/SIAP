@@ -382,7 +382,60 @@ def calculate_percentage(sum, votes):
     prct = votes/sum
     return round(prct,3)
 
+def random_forest_regression(X, y):
 
+    target = np.array(X['award_share'])
+    features = X.drop('award_share', axis=1)
+    feature_list = list(features.columns)
+    features = np.array(features)
+
+    train_features = features;
+    train_labels = target;
+
+    test_features = np.array(y.drop('award_share', axis=1))
+    test_labels = np.array(y['award_share'])
+
+    print('Training Features Shape:', train_features.shape)
+    print('Training Labels Shape:', train_labels.shape)
+    print('Testing Features Shape:', test_features.shape)
+    print('Testing Labels Shape:', test_labels.shape)
+
+    r1 = RandomForestRegressor(n_estimators=1000, random_state=0, bootstrap=True)
+    r2 = RandomForestRegressor(n_estimators=500, random_state=0, bootstrap=True)
+    r1.fit(train_features, train_labels)
+    r2.fit(train_features, train_labels)
+
+    predictions_r1 = r1.predict(test_features)
+    predictions_r2 = r2.predict(test_features)
+
+    data = pd.read_csv('test.csv', usecols=['player', 'season', 'award_share'])
+    cols = ['Player', 'Season', 'Award_share', 'Predictions']
+    players = np.array(data['player'])
+    seasons = np.array(data['season'])
+    award_shares = np.array(data['award_share'])
+    tuples = list(zip(players, seasons, award_shares, predictions_r1))
+    df = pd.DataFrame(tuples, columns=['Player', 'Season', 'Award_share', 'Predictions'])
+    # df.to_csv('predicted_values_all_star', sep='\t', encoding='utf-8')
+
+    errors_r1 = abs(predictions_r1 - test_labels)
+    errors_r2 = abs(predictions_r2 - test_labels)
+
+    # Print out the mean absolute error (mae)
+    print('Mean Absolute Error:', round(np.mean(errors_r1), 2), 'degrees.')
+    MAPE_r1 = 100 * (errors_r1 / test_labels)
+    accuracy_r1 = round(100 - np.mean(MAPE_r1), 2)
+    print("Accuracy: " + str(accuracy_r1))
+
+    # Print out the mean absolute error (mae)
+    print('Mean Absolute Error:', round(np.mean(errors_r2), 2), 'degrees.')
+    MAPE_r2 = 100 * (errors_r2 / test_labels)
+    accuracy_r2 = round(100 - np.mean(MAPE_r2), 2)
+    print("Accuracy: " + str(accuracy_r2))
+
+    print("Score r1: " + str(r1.score(test_features, test_labels)))
+    print("Score r2: " + str(r2.score(test_features, test_labels)))
+
+    return df
 
 if __name__ == '__main__':
 
@@ -406,57 +459,13 @@ if __name__ == '__main__':
 
 
     # RANDOM FOREST
-    X = pd.read_csv('train.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
-    y = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
 
-    target = np.array(X['award_share'])
-    features = X.drop('award_share', axis = 1)
-    feature_list = list(features.columns)
-    features = np.array(features)
+    X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+    y_all_star = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+    df_all_star = random_forest_regression(X_all_star, y_all_star)
+    df_all_star.to_csv('predicted_values_all_star', sep='\t', encoding='utf-8')
 
-    train_features = features;
-    train_labels = target;
-
-    test_features = np.array(y.drop('award_share', axis=1))
-    test_labels = np.array(y['award_share'])
-
-    print('Training Features Shape:', train_features.shape)
-    print('Training Labels Shape:', train_labels.shape)
-    print('Testing Features Shape:', test_features.shape)
-    print('Testing Labels Shape:', test_labels.shape)
-
-    r1 = RandomForestRegressor(n_estimators=1000, random_state=0, bootstrap=True)
-    r2 = RandomForestRegressor(n_estimators=500, random_state=0, bootstrap=True, criterion='mse')
-    r1.fit(train_features, train_labels)
-    r2.fit(train_features,train_labels)
-
-    predictions_r1 = r1.predict(test_features)
-    predictions_r2 = r2.predict(test_features)
-
-    data = pd.read_csv('test.csv', usecols=['player', 'season', 'award_share'])
-    cols = ['Player', 'Season', 'Award_share', 'Predictions']
-    players = np.array(data['player'])
-    seasons = np.array(data['season'])
-    award_shares = np.array(data['award_share'])
-    tuples = list(zip(players, seasons, award_shares, predictions_r1))
-    df = pd.DataFrame(tuples, columns=['Player', 'Season', 'Award_share', 'Predictions'])
-    print(df)
-    df.to_csv('predicted_values_all_star', sep='\t', encoding='utf-8')
-
-    errors_r1 = abs(predictions_r1 - test_labels)
-    errors_r2 = abs(predictions_r2 - test_labels)
-
-    # Print out the mean absolute error (mae)
-    print('Mean Absolute Error:', round(np.mean(errors_r1), 2), 'degrees.')
-    MAPE_r1 = 100*(errors_r1/test_labels)
-    accuracy_r1 = round(100-np.mean(MAPE_r1),2)
-    print("Accuracy: " + str(accuracy_r1))
-
-    # Print out the mean absolute error (mae)
-    print('Mean Absolute Error:', round(np.mean(errors_r2), 2), 'degrees.')
-    MAPE_r2 = 100 * (errors_r2 / test_labels)
-    accuracy_r2 = round(100 - np.mean(MAPE_r2), 2)
-    print("Accuracy: " + str(accuracy_r2))
-
-    print("Score r1: " + str(r1.score(test_features, test_labels)))
-    print("Score r2: " + str(r2.score(test_features, test_labels)))
+    X = pd.read_csv('train.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm'])
+    y = pd.read_csv('test.csv', usecols=['award_share', 'pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm'])
+    df = random_forest_regression(X, y)
+    df.to_csv('predicted_values', sep='\t', encoding='utf-8')
