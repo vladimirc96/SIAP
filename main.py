@@ -11,6 +11,15 @@ import importlib.util
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import RandomizedSearchCV
+from pprint import pprint
+
+# Scatterplot Matrix
+import matplotlib.pyplot as plt
+from pandas.plotting import scatter_matrix
+
+
+
 # id wrappera = voting_results_DIVIZIJA
 # svaka tabela ima id formata: voting-results-DIVIZIJA_IDPOZICIJE
 # id za pozocije: 1 - Guard, 2 - Forward, 3 - Center
@@ -480,7 +489,8 @@ def random_forest_regression(X, y, year):
     tuples = list(zip(players, seasons, award_shares, predictions_r1, votes_first, per, ws, ws_per_48, bpm, all_star_share))
     df = pd.DataFrame(tuples, columns=['player', 'season', 'award_share', 'predictions', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
 
-
+    print(df[0:6])
+    print("\n")
 
     # Print out the mean absolute error (mae)
     print('Mean Absolute Error r1:', round(mean_absolute_error(test_labels, predictions_r1),2), '.')
@@ -493,18 +503,81 @@ def random_forest_regression(X, y, year):
 
 
 def check_results(dataframe):
-    pd.set_option('display.max_columns', None)
-    real = dataframe.sort_values('award_share',ascending=False)
+    real = dataframe.sort_values('award_share', ascending=False)
     prediction = dataframe.sort_values('predictions', ascending=False)
+    # fig, ax = plt.subplots(1,1)
+    # ax.axis('off')
+    # pd.plotting.table(ax,real)
+    # pd.plotting.table(ax,prediction)
+    # plt.show()
     print('\n')
-    print(real[0:3])
+    print(real[0:6])
     print('\n')
-    print(prediction[0:3])
+    print(prediction[0:6])
     print('\n')
     return real[0:6], prediction[0:6]
 
-if __name__ == '__main__':
+def random_forest_tuning(X,y):
+    # get train and test features and labels
+    target = np.array(X['award_share'])
+    features = X.drop('award_share', axis=1)
+    feature_list = list(features.columns)
+    features = np.array(features)
 
+    train_features = features;
+    train_labels = target;
+    test_features = np.array(y.drop('award_share', axis=1))
+    test_labels = np.array(y['award_share'])
+
+    # Number of trees in random forest
+    n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
+    # Number of features to consider at every split
+    max_features = ['auto', 'sqrt']
+    # Maximum number of levels in tree
+    max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
+    max_depth.append(None)
+    # Minimum number of samples required to split a node
+    min_samples_split = [2, 5, 10]
+    # Minimum number of samples required at each leaf node
+    min_samples_leaf = [1, 2, 4]
+    # Method of selecting samples for training each tree
+    bootstrap = [True, False]
+    # Create the random grid
+    random_grid = {'n_estimators': n_estimators,
+                   'max_features': max_features,
+                   'max_depth': max_depth,
+                   'min_samples_split': min_samples_split,
+                   'min_samples_leaf': min_samples_leaf,
+                   'bootstrap': bootstrap}
+    pprint(random_grid)
+
+    # Use the random grid to search for best hyperparameters
+    # First create the base model to tune
+    rf = RandomForestRegressor()
+    # Random search of parameters, using 3 fold cross validation,
+    # search across 100 different combinations, and use all available cores
+    rf_random = RandomizedSearchCV(estimator=rf, param_distributions=random_grid, n_iter=100, cv=3, verbose=2,
+                                   random_state=42, n_jobs=-1)
+    # Fit the random search model
+    rf_random.fit(train_features, train_labels)
+    rf_random.best_params_
+    print(rf_random.best_params_)
+    pprint(rf_random.best_params_)
+
+    # Compare randomized and original
+    base_model = RandomForestRegressor(n_estimators=1000, random_state=42, bootstrap=True)
+    base_model.fit(train_features, train_labels)
+    base_model_predictions = base_model.predict(test_features)
+
+    best_random = rf_random.best_estimator_
+    best_random_predictions = best_random.predict(test_features)
+
+    # Print out the mean absolute error (mae)
+    print('Mean Absolute Error r1:', round(mean_absolute_error(test_labels, base_model_predictions), 5), '.')
+    print('Mean Absolute Error r1:', round(mean_absolute_error(test_labels, best_random_predictions), 5), '.')
+
+
+if __name__ == '__main__':
     # scrape_season_1980_2012()
     # scrape_season_2013_2016()
     # scrape_season_2017_2020()
@@ -528,35 +601,56 @@ if __name__ == '__main__':
     # X = pd.read_csv('mvp_votings_joined.csv')
     # corr = X.corr()
     # coef = corr['award_share'].sort_values(ascending=False)
-    # coef.to_csv('person_correlations', sep='\t', encoding='utf-8')
+    # coef.to_csv('person_correlations.csv', sep='\t', encoding='utf-8')
+    # plt.scatter(X['ws'], X['award_share'])
+    # plt.xlabel('ws')
+    # plt.ylabel('award_share')
+    # plt.show()
 
     # RANDOM FOREST
-    # X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
     # X = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
-    # for index in range(2013,2018):
-    #     print('****************** ALL_STAR_SHARE ******************  \n')
-    #     y_all_star = pd.read_csv('test_' + str(index) + '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
-    #     df_all_star = random_forest_regression(X_all_star, y_all_star, index)
-    #     real_all_star, predicition_all_star = check_results(df_all_star)
-    #     print('\n')
-    #     print('****************** ALL_STAR_SHARE ******************  \n\n\n')
-    #
-    #     print('****************** NO_ALL_STAR_SHARE ******************  \n')
-    #     y = pd.read_csv('test_' + str(index) +  '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
-    #     df = random_forest_regression(X, y, index)
-    #     real, prediction = check_results(df)
-    #     print('\n')
-    #
-    #     pd.concat([real_all_star, predicition_all_star],axis=1).to_csv('predictions_all_star_' + str(index) + '.csv')
-    #     pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
+    # y = pd.read_csv('test_2013.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+    # random_forest_tuning(X,y)
 
-    #LINEAR
-    linear_regression()
+    X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+    X = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+    for index in range(2013,2018):
+        print('****************** ALL_STAR_SHARE ******************  \n')
+        print("Season:" + str(index))
+        y_all_star = pd.read_csv('test_' + str(index) + '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+        df_all_star = random_forest_regression(X_all_star, y_all_star, index)
+        real_all_star, predicition_all_star = check_results(df_all_star)
+        print('\n')
+        print('****************** ALL_STAR_SHARE ******************  \n\n\n')
 
-    # DECISION_TREE
-    for index in range(2013, 2018):
-        df = gradient_boosting(index)
+        print('****************** NO_ALL_STAR_SHARE ******************  \n')
+        print("Season:" + str(index))
+        y = pd.read_csv('test_' + str(index) +  '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+        df = random_forest_regression(X, y, index)
         real, prediction = check_results(df)
-        pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index)+"_gb" + '.csv')
+        print('\n')
 
+        with open('predictions_all_star' + str(index) + '.csv', 'w') as f:
+            real_all_star.to_csv(f)
+        with open('predictions_all_star' + str(index) + '.csv', 'a') as f:
+            predicition_all_star.to_csv(f)
+
+        with open('predictions_' + str(index) + '.csv', 'w') as f:
+            real.to_csv(f)
+        with open('predictions_' + str(index) + '.csv', 'a') as f:
+            prediction.to_csv(f)
+        # pd.concat([real_all_star, predicition_all_star], axis=1).to_csv('predictions_all_star_' + str(index) + '.csv')
+        # pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
+
+
+
+    # #LINEAR
+    # linear_regression()
+
+    # # DECISION_TREE
+    # for index in range(2013, 2018):
+    #     df = gradient_boosting(index)
+    #     real, prediction = check_results(df)
+    #     pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index)+"_gb" + '.csv')
+    #
 
