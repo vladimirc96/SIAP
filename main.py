@@ -7,6 +7,7 @@ from chefboost import Chefboost as chef
 from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
+import importlib.util
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
@@ -389,10 +390,10 @@ def calculate_percentage(sum, votes):
 
 def gradient_boosting(year):
     df = pd.read_csv("train_gb.csv")
-    dt = pd.read_csv("test_"+str(year)+".csv")
+    dt = pd.read_csv("test_"+str(year)+"_gb"+".csv")
     num_of_instances = dt.shape[0]
     # test_labels = np.array(dt['Decision'])
-    config = {'enableGBM': True, 'epochs':2,'learning_rate': 1}
+    config = {'enableGBM': True, 'epochs':7,'learning_rate': 1}
     df.head()
     model = chef.fit(df[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'Decision']], config)
     mae = 0
@@ -400,9 +401,15 @@ def gradient_boosting(year):
     for index, instance in dt.iterrows():
         actual = instance['Decision']
         prediction = 0
-        # for j in  range(0,7):
-        prediction =chef.predict(model, instance[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']])
-        # print("Actual: ",actual,"Prediction: ", prediction)
+        for j in  range(0,7):
+            moduleName  = "outputs/rules/rules%s" % (j)
+            # fp, pathName, description = imp.find_module(moduleName)
+            # myRules = imp.load_module(moduleName,fp,pathName,description)
+            tree = chef.restoreTree(moduleName)
+
+            prediction = prediction+ tree.findDecision( instance.values)
+
+        print("Actual: ",actual,"Prediction: ", prediction)
         error = abs(actual - prediction)
         mae = mae + error
         predictions.append(prediction)
@@ -414,12 +421,10 @@ def gradient_boosting(year):
     players = np.array(data['player'])
     seasons = np.array(data['season'])
     award_shares = np.array(data['award_share'])
-    votes_first = np.array(data['votes_first'])
     per = np.array(data['per'])
     ws = np.array(data['ws'])
     ws_per_48 = np.array(data['ws_per_48'])
     bpm = np.array(data['bpm'])
-    all_star_share = np.array(data['all_star_share'])
     tuples = list(zip(players, seasons, award_shares, predictions, per, ws, ws_per_48, bpm))
     dataFrame = pd.DataFrame(tuples, columns=['player', 'season', 'award_share', 'predictions', 'per', 'ws', 'ws_per_48', 'bpm'])
 
@@ -552,6 +557,6 @@ if __name__ == '__main__':
     for index in range(2013, 2018):
         df = gradient_boosting(index)
         real, prediction = check_results(df)
-        pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
+        pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index)+"_gb" + '.csv')
 
 
