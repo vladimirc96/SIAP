@@ -384,16 +384,19 @@ def calculate_percentage(sum, votes):
     prct = votes/sum
     return round(prct,3)
 
+
+
+
 def linear_regression():
     df = pd.read_csv("train.csv")
     dt = pd.read_csv("test.csv")
+    test_labels = np.array(dt['award_share'])
     reg = linear_model.LinearRegression()
     print('LINEAR START')
     reg.fit(df[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']],df.award_share)
-    rez = reg.predict(dt[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']])
-    
-    print(rez)
-    print(dt.award_share)
+    prediction = reg.predict(dt[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']])
+
+    print('Mean Absolute Error L:', round(mean_absolute_error(test_labels, prediction), 2), '.')
     print('LINEAR END')
 
 def random_forest_regression(X, y):
