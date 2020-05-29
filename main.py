@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import csv
 import numpy as np
+from chefboost import Chefboost as chef
 from sklearn import linear_model
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -386,7 +387,43 @@ def calculate_percentage(sum, votes):
     return round(prct,3)
 
 
+def gradient_boosting(year):
+    df = pd.read_csv("train_gb.csv")
+    dt = pd.read_csv("test_"+str(year)+".csv")
+    num_of_instances = dt.shape[0]
+    # test_labels = np.array(dt['Decision'])
+    config = {'enableGBM': True, 'epochs':2,'learning_rate': 1}
+    df.head()
+    model = chef.fit(df[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm', 'Decision']], config)
+    mae = 0
+    predictions = []
+    for index, instance in dt.iterrows():
+        actual = instance['Decision']
+        prediction = 0
+        # for j in  range(0,7):
+        prediction =chef.predict(model, instance[['pts_per_g', 'per', 'ws', 'ws_per_48', 'bpm']])
+        # print("Actual: ",actual,"Prediction: ", prediction)
+        error = abs(actual - prediction)
+        mae = mae + error
+        predictions.append(prediction)
+    mae = mae/num_of_instances
+    print("Mean Absolute Error GB: ", mae)
 
+
+    data = pd.read_csv('test_' + str(year) + '.csv', usecols=['player', 'season', 'award_share', 'per', 'ws', 'ws_per_48', 'bpm'])
+    players = np.array(data['player'])
+    seasons = np.array(data['season'])
+    award_shares = np.array(data['award_share'])
+    votes_first = np.array(data['votes_first'])
+    per = np.array(data['per'])
+    ws = np.array(data['ws'])
+    ws_per_48 = np.array(data['ws_per_48'])
+    bpm = np.array(data['bpm'])
+    all_star_share = np.array(data['all_star_share'])
+    tuples = list(zip(players, seasons, award_shares, predictions, per, ws, ws_per_48, bpm))
+    dataFrame = pd.DataFrame(tuples, columns=['player', 'season', 'award_share', 'predictions', 'per', 'ws', 'ws_per_48', 'bpm'])
+
+    return dataFrame
 
 def linear_regression():
     df = pd.read_csv("train.csv")
@@ -439,6 +476,7 @@ def random_forest_regression(X, y, year):
     df = pd.DataFrame(tuples, columns=['player', 'season', 'award_share', 'predictions', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
 
 
+
     # Print out the mean absolute error (mae)
     print('Mean Absolute Error r1:', round(mean_absolute_error(test_labels, predictions_r1),2), '.')
     print('Mean Absolute Error r2:', round(mean_absolute_error(test_labels, predictions_r2),2), '.')
@@ -488,28 +526,32 @@ if __name__ == '__main__':
     # coef.to_csv('person_correlations', sep='\t', encoding='utf-8')
 
     # RANDOM FOREST
-    X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
-    X = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
-    for index in range(2013,2018):
-        print('****************** ALL_STAR_SHARE ******************  \n')
-        y_all_star = pd.read_csv('test_' + str(index) + '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
-        df_all_star = random_forest_regression(X_all_star, y_all_star, index)
-        real_all_star, predicition_all_star = check_results(df_all_star)
-        print('\n')
-        print('****************** ALL_STAR_SHARE ******************  \n\n\n')
-
-        print('****************** NO_ALL_STAR_SHARE ******************  \n')
-        y = pd.read_csv('test_' + str(index) +  '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
-        df = random_forest_regression(X, y, index)
-        real, prediction = check_results(df)
-        print('\n')
-        print('****************** NO_ALL_STAR_SHARE ******************  \n\n\n')
-
-        pd.concat([real_all_star, predicition_all_star],axis=1).to_csv('predictions_all_star_' + str(index) + '.csv')
-        pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
+    # X_all_star = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+    # X = pd.read_csv('train.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+    # for index in range(2013,2018):
+    #     print('****************** ALL_STAR_SHARE ******************  \n')
+    #     y_all_star = pd.read_csv('test_' + str(index) + '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm', 'all_star_share'])
+    #     df_all_star = random_forest_regression(X_all_star, y_all_star, index)
+    #     real_all_star, predicition_all_star = check_results(df_all_star)
+    #     print('\n')
+    #     print('****************** ALL_STAR_SHARE ******************  \n\n\n')
+    #
+    #     print('****************** NO_ALL_STAR_SHARE ******************  \n')
+    #     y = pd.read_csv('test_' + str(index) +  '.csv', usecols=['award_share', 'votes_first', 'per', 'ws', 'ws_per_48', 'bpm'])
+    #     df = random_forest_regression(X, y, index)
+    #     real, prediction = check_results(df)
+    #     print('\n')
+    #
+    #     pd.concat([real_all_star, predicition_all_star],axis=1).to_csv('predictions_all_star_' + str(index) + '.csv')
+    #     pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
 
     #LINEAR
     linear_regression()
 
+    # DECISION_TREE
+    for index in range(2013, 2018):
+        df = gradient_boosting(index)
+        real, prediction = check_results(df)
+        pd.concat([real, prediction], axis=1).to_csv('predictions_' + str(index) + '.csv')
 
 
