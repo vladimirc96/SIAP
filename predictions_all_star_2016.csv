@@ -1,14 +1,14 @@
-,0,1
-0,"              player   season  award_share  predictions
-0  Russell Westbrook  2016-17        0.879     0.911680
-1       James Harden  2016-17        0.746     0.614010
-2      Kawhi Leonard  2016-17        0.495     0.397852
-3       LeBron James  2016-17        0.330     0.294417
-4      Isaiah Thomas  2016-17        0.080     0.131028
-5      Stephen Curry  2016-17        0.051     0.153456","              player   season  award_share  predictions
-0  Russell Westbrook  2016-17        0.879     0.911680
-1       James Harden  2016-17        0.746     0.614010
-2      Kawhi Leonard  2016-17        0.495     0.397852
-3       LeBron James  2016-17        0.330     0.294417
-9       Kevin Durant  2016-17        0.002     0.262482
-5      Stephen Curry  2016-17        0.051     0.153456"
+,player,season,award_share,predictions,per,ws,bpm,pts_per_g,all_star_share
+0,Russell Westbrook,2016-17,0.879,0.41361783005846053,30.6,13.1,15.6,31.6,0.033
+1,James Harden,2016-17,0.746,0.4005525642663966,27.4,15.0,10.1,29.1,0.019
+2,Kawhi Leonard,2016-17,0.495,0.33162222552798964,27.6,13.6,7.9,25.5,0.034
+3,LeBron James,2016-17,0.33,0.3582349014339549,27.0,12.9,8.4,26.4,0.047
+4,Isaiah Thomas,2016-17,0.08,0.2503750624699766,26.5,12.5,5.4,28.9,0.006999999999999999
+5,Stephen Curry,2016-17,0.051,0.27987593358819984,24.6,12.6,7.3,25.3,0.069
+,player,season,award_share,predictions,per,ws,bpm,pts_per_g,all_star_share
+0,Russell Westbrook,2016-17,0.879,0.41361783005846053,30.6,13.1,15.6,31.6,0.033
+1,James Harden,2016-17,0.746,0.4005525642663966,27.4,15.0,10.1,29.1,0.019
+3,LeBron James,2016-17,0.33,0.3582349014339549,27.0,12.9,8.4,26.4,0.047
+9,Kevin Durant,2016-17,0.002,0.34640671507147425,27.6,12.0,8.0,25.1,0.042
+2,Kawhi Leonard,2016-17,0.495,0.33162222552798964,27.6,13.6,7.9,25.5,0.034
+5,Stephen Curry,2016-17,0.051,0.27987593358819984,24.6,12.6,7.3,25.3,0.069
